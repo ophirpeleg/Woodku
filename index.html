@@ -4,7 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Woodoku Game</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+
+    #game-container {
+      width: 90vw;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      background-color: #ffffff;
+      border: 2px solid #000;
+    }
+
+    #blocks-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .block {
+      width: 60px;
+      height: 60px;
+      background-color: blue;
+      margin: 5px;
+      cursor: grab;
+    }
+
+    #score {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <div id="game-container">
@@ -12,6 +55,82 @@
     <div id="blocks-container"></div>
     <div id="score">Score: 0</div>
   </div>
-  <script src="script.js"></script>
+  <script>
+    const canvas = document.getElementById('game-grid');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 5; // 5x5 grid
+    const cellSize = 80; // Each cell is 80x80px
+    canvas.width = gridSize * cellSize;
+    canvas.height = gridSize * cellSize;
+
+    let score = 0;
+
+    // Initialize the grid (0 for empty, 1 for filled)
+    let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
+
+    // Draw the grid
+    function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+          ctx.strokeStyle = '#000';
+          ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          if (grid[x][y] !== 0) {
+            ctx.fillStyle = 'lightblue';
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+    }
+
+    // Add draggable blocks
+    function spawnBlocks() {
+      const blockContainer = document.getElementById('blocks-container');
+      blockContainer.innerHTML = ''; // Clear existing blocks
+
+      for (let i = 0; i < 3; i++) {
+        const block = document.createElement('div');
+        block.className = 'block';
+        block.draggable = true;
+        block.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('block', i); // Placeholder for block data
+        });
+        blockContainer.appendChild(block);
+      }
+    }
+
+    // Handle dropping blocks on the grid
+    canvas.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    canvas.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left) / cellSize);
+      const y = Math.floor((e.clientY - rect.top) / cellSize);
+
+      if (x >= 0 && y >= 0 && x < gridSize && y < gridSize && grid[x][y] === 0) {
+        grid[x][y] = 1; // Mark the cell as filled
+        updateScore(10); // Increment score
+        drawGrid();
+      }
+    });
+
+    // Update score
+    function updateScore(points) {
+      score += points;
+      document.getElementById('score').textContent = `Score: ${score}`;
+    }
+
+    // Game loop
+    function gameLoop() {
+      drawGrid();
+    }
+
+    // Initialize game
+    spawnBlocks();
+    gameLoop();
+  </script>
 </body>
 </html>
