@@ -28,20 +28,6 @@
       border: 2px solid #000;
     }
 
-    #blocks-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 10px;
-    }
-
-    .block {
-      width: 60px;
-      height: 60px;
-      background-color: blue;
-      margin: 5px;
-      cursor: grab;
-    }
-
     #score {
       margin-top: 20px;
       font-size: 24px;
@@ -52,7 +38,6 @@
 <body>
   <div id="game-container">
     <canvas id="game-grid"></canvas>
-    <div id="blocks-container"></div>
     <div id="score">Score: 0</div>
   </div>
   <script>
@@ -65,8 +50,14 @@
 
     let score = 0;
 
-    // Initialize the grid (0 for empty, 1 for filled)
+    // Initialize the grid (0 for empty, 1 for block, 2 for movable square)
     let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
+
+    // Place initial blocks and the movable square
+    grid[0][0] = 2; // Movable square
+    grid[1][1] = 1; // Example blocks
+    grid[2][2] = 1;
+    grid[3][3] = 1;
 
     // Draw the grid
     function drawGrid() {
@@ -75,62 +66,57 @@
         for (let y = 0; y < gridSize; y++) {
           ctx.strokeStyle = '#000';
           ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
-          if (grid[x][y] !== 0) {
+          if (grid[x][y] === 1) {
             ctx.fillStyle = 'lightblue';
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          } else if (grid[x][y] === 2) {
+            ctx.fillStyle = 'red';
             ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
           }
         }
       }
     }
 
-    // Add draggable blocks
-    function spawnBlocks() {
-      const blockContainer = document.getElementById('blocks-container');
-      blockContainer.innerHTML = ''; // Clear existing blocks
+    // Handle key presses to move the red square
+    document.addEventListener('keydown', (e) => {
+      const directions = {
+        ArrowUp: { dx: 0, dy: -1 },
+        ArrowDown: { dx: 0, dy: 1 },
+        ArrowLeft: { dx: -1, dy: 0 },
+        ArrowRight: { dx: 1, dy: 0 },
+      };
 
-      for (let i = 0; i < 3; i++) {
-        const block = document.createElement('div');
-        block.className = 'block';
-        block.draggable = true;
-        block.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('block', i); // Placeholder for block data
-        });
-        blockContainer.appendChild(block);
-      }
-    }
-
-    // Handle dropping blocks on the grid
-    canvas.addEventListener('dragover', (e) => {
-      e.preventDefault();
-    });
-
-    canvas.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const x = Math.floor((e.clientX - rect.left) / cellSize);
-      const y = Math.floor((e.clientY - rect.top) / cellSize);
-
-      if (x >= 0 && y >= 0 && x < gridSize && y < gridSize && grid[x][y] === 0) {
-        grid[x][y] = 1; // Mark the cell as filled
-        updateScore(10); // Increment score
-        drawGrid();
+      if (directions[e.key]) {
+        moveSquare(directions[e.key].dx, directions[e.key].dy);
       }
     });
 
-    // Update score
-    function updateScore(points) {
-      score += points;
-      document.getElementById('score').textContent = `Score: ${score}`;
-    }
+    function moveSquare(dx, dy) {
+      for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+          if (grid[x][y] === 2) {
+            const newX = x + dx;
+            const newY = y + dy;
 
-    // Game loop
-    function gameLoop() {
-      drawGrid();
+            if (
+              newX >= 0 &&
+              newY >= 0 &&
+              newX < gridSize &&
+              newY < gridSize &&
+              grid[newX][newY] === 0
+            ) {
+              grid[x][y] = 0; // Clear old position
+              grid[newX][newY] = 2; // Set new position
+              drawGrid();
+              return;
+            }
+          }
+        }
+      }
     }
 
     // Initialize game
-    spawnBlocks();
-    gameLoop();
+    drawGrid();
   </script>
 </body>
 </html>
