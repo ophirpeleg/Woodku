@@ -186,26 +186,6 @@
 	<script type="application/javascript">
 window.canvas = document.getElementById("overlay")
 window.ctx = canvas.getContext("2d")
-
-// Pointer Lock initialization
-canvas.addEventListener("click", () => {
-	canvas.focus();
-	canvas.requestPointerLock();
-});
-
-document.addEventListener("pointerlockchange", () => {
-    if (document.pointerLockElement === canvas) {
-        console.log("Pointer lock active!");
-    } else {
-        console.log("Pointer lock released.");
-    }
-});
-
-document.addEventListener("pointerlockerror", () => {
-    console.error("Pointer lock request failed.");
-});
-		
-
 window.savebox = document.getElementById("savebox")
 window.boxCenterTop = document.getElementById("boxcentertop")
 window.saveDirections = document.getElementById("savedirections")
