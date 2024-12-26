@@ -186,6 +186,37 @@
 	<script type="application/javascript">
 window.canvas = document.getElementById("overlay")
 window.ctx = canvas.getContext("2d")
+
+window.canvas.addEventListener("click", () => {
+    if (document.body.contains(window.canvas)) {
+        window.canvas.requestPointerLock = 
+            window.canvas.requestPointerLock || 
+            window.canvas.mozRequestPointerLock || 
+            window.canvas.webkitRequestPointerLock;
+
+        if (window.canvas.requestPointerLock) {
+            window.canvas.requestPointerLock();
+        } else {
+            console.error("Pointer Lock API is not supported in this browser.");
+        }
+    } else {
+        console.error("Canvas element is not in the active document.");
+    }
+});
+
+document.addEventListener("pointerlockchange", () => {
+    if (document.pointerLockElement === window.canvas) {
+        console.log("Pointer is locked on the canvas.");
+    } else {
+        console.log("Pointer lock is released.");
+    }
+});
+
+document.addEventListener("pointerlockerror", (e) => {
+    console.error("Pointer lock failed:", e);
+});
+
+		
 window.savebox = document.getElementById("savebox")
 window.boxCenterTop = document.getElementById("boxcentertop")
 window.saveDirections = document.getElementById("savedirections")
