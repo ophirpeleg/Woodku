@@ -189,7 +189,8 @@ window.ctx = canvas.getContext("2d")
 
 // Pointer Lock initialization
 canvas.addEventListener("click", () => {
-    canvas.requestPointerLock();
+	canvas.focus();
+	canvas.requestPointerLock();
 });
 
 document.addEventListener("pointerlockchange", () => {
